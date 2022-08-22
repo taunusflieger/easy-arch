@@ -358,7 +358,7 @@ info_print "Synchronize package databases"
 pacman -Syy
 reflector --verbose --protocol https --latest 5 --sort rate --country Germany --country Canada --save /etc/pacman.d/mirrorlist
 info_print "Installing the base system (it may take a while)."
-pacstrap /mnt base "$kernel" "$microcode" linux-firmware "$kernel"-headers btrfs-progs grub grub-btrfs efibootmgr reflector zram-generator mlocate neovim penssh pacman-contrib pkgfile reflector sudo terminus-font
+pacstrap /mnt base "$kernel" "$microcode" linux-firmware "$kernel"-headers btrfs-progs grub grub-btrfs efibootmgr reflector zram-generator mlocate neovim openssh pacman-contrib pkgfile reflector sudo terminus-font
 
 # Setting up the hostname.
 echo "$hostname" > /mnt/etc/hostname
