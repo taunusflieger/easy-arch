@@ -353,6 +353,9 @@ mount -o "$mountopts",subvol=@var_pkgs "$BTRFS" /mnt/var/cache/pacman/pkg
 chattr +C /mnt/var/log
 mount "$ESP" /mnt/boot/
 
+# Checking the microcode to install.
+microcode_detector
+
 # Pacstrap (setting up a base sytem onto the new root).
 info_print "Synchronize package databases"
 pacman -Syy
@@ -380,9 +383,6 @@ cat > /mnt/etc/hosts <<EOF
 ::1         localhost
 127.0.1.1   $hostname.localdomain   $hostname
 EOF
-
-# Checking the microcode to install.
-microcode_detector
 
 # Virtualization check.
 virt_check
