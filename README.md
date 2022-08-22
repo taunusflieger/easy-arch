@@ -18,12 +18,11 @@
 5. Connect to the internet
 6. Run either one of these (always check twice before piping internet downloaded scripts into bash):
 ```
-Short version:
-bash <(curl -sL bit.ly/easy-arch)
+
 ```
 ```
 Long version:
-bash <(curl -s https://raw.githubusercontent.com/classy-giraffe/easy-arch/main/easy-arch.sh)
+bash <(curl -s https://raw.githubusercontent.com/taunusflieger/easy-arch/main/easy-arch.sh)
 ```
 
 ### Partitions layout 
