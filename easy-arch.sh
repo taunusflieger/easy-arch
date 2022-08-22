@@ -359,9 +359,9 @@ microcode_detector
 # Pacstrap (setting up a base sytem onto the new root).
 info_print "Synchronize package databases"
 pacman -Syy
-reflector --verbose --protocol https --latest 5 --sort rate --country Germany --country Canada --save /etc/pacman.d/mirrorlist
+reflector --verbose --protocol https --latest 5 --sort rate --country Germany --country Canada --save /etc/pacman.d/mirrorlist &>/dev/null
 info_print "Installing the base system (it may take a while)."
-pacstrap /mnt base "$kernel" "$microcode" linux-firmware "$kernel"-headers btrfs-progs grub grub-btrfs efibootmgr snapper reflector zram-generator mlocate neovim openssh pacman-contrib pkgfile reflector sudo terminus-font
+pacstrap /mnt base "$kernel" "$microcode" linux-firmware "$kernel"-headers btrfs-progs grub grub-btrfs efibootmgr zsh htop snapper reflector zram-generator mlocate neovim openssh pacman-contrib pkgfile reflector sudo terminus-font
 
 # Setting up the hostname.
 echo "$hostname" > /mnt/etc/hostname
@@ -405,6 +405,16 @@ sed -i "s/#GRUB_ENABLE_CRYPTODISK/GRUB_ENABLE_CRYPTODISK/g" /mnt/etc/default/gru
 # Configuring the system.
 info_print "Configuring the system (timezone, system clock, initramfs, Snapper, GRUB)."
 arch-chroot /mnt /bin/bash -e <<EOF
+
+    echo "EDITOR=nvim" > /etc/environment && echo "VISUAL=nvim" >> /etc/environment
+
+    # set a larger font for the console
+    echo "FONT=ter-128n" >> /etc/vconsole.conf
+    
+    # enable key services
+    systemctl enable NetworkManager
+    systemctl enable sshd.service
+   
 
     # Setting up timezone.
     ln -sf /usr/share/zoneinfo/$(curl -s http://ip-api.com/line?fields=timezone) /etc/localtime &>/dev/null
