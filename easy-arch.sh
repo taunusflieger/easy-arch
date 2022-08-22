@@ -415,7 +415,7 @@ arch-chroot /mnt /bin/bash -e <<EOF
     locale-gen &>/dev/null
 
     # Generating a new initramfs.
-    mkinitcpio -P &>/dev/null
+    mkinitcpio -P 
 
     # Snapper configuration.
     umount /.snapshots
