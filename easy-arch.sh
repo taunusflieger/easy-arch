@@ -368,7 +368,8 @@ info_print "Generating a new fstab."
 genfstab -U /mnt >> /mnt/etc/fstab
 
 # Configure selected locale and console keymap
-sed -i "/^#$locale/s/^#//" /mnt/etc/locale.gen
+info_print "Configureing locale and keymap"
+sed -i "/^#${locale}/s/^#//" /mnt/etc/locale.gen
 echo "LANG=$locale" > /mnt/etc/locale.conf
 echo "KEYMAP=$kblayout" > /mnt/etc/vconsole.conf
 
