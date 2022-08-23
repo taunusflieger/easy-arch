@@ -6,7 +6,7 @@ clear
 # Cosmetics (colours for text).
 BOLD='\e[1m'
 BRED='\e[91m'
-BBLUE='\e[34m'  
+BBLUE='\e[34m'
 BGREEN='\e[92m'
 BYELLOW='\e[93m'
 RESET='\e[0m'
@@ -59,7 +59,7 @@ kernel_selector () {
     info_print "2) Hardened: A security-focused Linux kernel"
     info_print "3) Longterm: Long-term support (LTS) Linux kernel"
     info_print "4) Zen Kernel: A Linux kernel optimized for desktop usage"
-    input_print "Please select the number of the corresponding kernel (e.g. 1): " 
+    input_print "Please select the number of the corresponding kernel (e.g. 1): "
     read -r kernel_choice
     case $kernel_choice in
         1 ) kernel="linux"
@@ -149,7 +149,7 @@ userpass_selector () {
         return 1
     fi
     echo
-    input_print "Please enter the password again (you're not going to see it): " 
+    input_print "Please enter the password again (you're not going to see it): "
     read -r -s userpass2
     echo
     if [[ "$userpass" != "$userpass2" ]]; then
@@ -170,7 +170,7 @@ rootpass_selector () {
         return 1
     fi
     echo
-    input_print "Please enter the password again (you're not going to see it): " 
+    input_print "Please enter the password again (you're not going to see it): "
     read -r -s rootpass2
     echo
     if [[ "$rootpass" != "$rootpass2" ]]; then
@@ -296,16 +296,17 @@ if ! [[ "${disk_response,,}" =~ ^(yes|y)$ ]]; then
     exit
 fi
 info_print "Wiping $DISK."
-wipefs -af "$DISK" &>/dev/null
-sgdisk -Zo "$DISK" &>/dev/null
+#wipefs -af "$DISK" &>/dev/null
+#sgdisk -Zo "$DISK" &>/dev/null
+wipefs -af $DISK &>/dev/null
+sgdisk --zap-all --clear $DISK &>/dev/null
+partprobe $DISK
+sleep 3s
 
 # Creating a new partition scheme.
 info_print "Creating the partitions on $DISK."
-parted -s "$DISK" \
-    mklabel gpt \
-    mkpart ESP fat32 1MiB 513MiB \
-    set 1 esp on \
-    mkpart CRYPTROOT 513MiB 100% \
+sgdisk -n 0:0:+512MiB -t 0:ef00 -c 0:ESP $DISK &>/dev/null
+sgdisk -n 0:0:0 -t 0:8309 -c 0:CRYPTROOT $DISK &>/dev/null
 
 ESP="/dev/disk/by-partlabel/ESP"
 CRYPTROOT="/dev/disk/by-partlabel/CRYPTROOT"
@@ -313,15 +314,16 @@ CRYPTROOT="/dev/disk/by-partlabel/CRYPTROOT"
 # Informing the Kernel of the changes.
 info_print "Informing the Kernel about the disk changes."
 partprobe "$DISK"
+sleep 3s
 
 # Formatting the ESP as FAT32.
 info_print "Formatting the EFI Partition as FAT32."
-mkfs.fat -F 32 "$ESP" &>/dev/null
+mkfs.fat -F 32 "$ESP"
 
 # Creating a LUKS Container for the root partition.
 info_print "Creating LUKS Container for the root partition."
-echo -n "$password" | cryptsetup luksFormat "$CRYPTROOT" -d - &>/dev/null
-echo -n "$password" | cryptsetup open "$CRYPTROOT" cryptroot -d - 
+echo -n "$password" | cryptsetup luksFormat "$CRYPTROOT" -d -
+echo -n "$password" | cryptsetup open "$CRYPTROOT" cryptroot -d -
 BTRFS="/dev/mapper/cryptroot"
 
 # Formatting the LUKS Container as BTRFS.
@@ -385,7 +387,7 @@ cat > /mnt/etc/hosts <<EOF
 EOF
 
 # Virtualization check.
-virt_check
+# virt_check
 
 # Setting up the network.
 network_installer
@@ -410,11 +412,10 @@ arch-chroot /mnt /bin/bash -e <<EOF
 
     # set a larger font for the console
     echo "FONT=ter-128n" >> /etc/vconsole.conf
-    
+
     # enable key services
     systemctl enable NetworkManager
     systemctl enable sshd.service
-   
 
     # Setting up timezone.
     ln -sf /usr/share/zoneinfo/$(curl -s http://ip-api.com/line?fields=timezone) /etc/localtime &>/dev/null
@@ -426,7 +427,7 @@ arch-chroot /mnt /bin/bash -e <<EOF
     locale-gen &>/dev/null
 
     # Generating a new initramfs.
-    mkinitcpio -P 
+    mkinitcpio -P
 
     # Snapper configuration.
     umount /.snapshots
